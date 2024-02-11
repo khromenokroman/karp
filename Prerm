@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# проверка на наличие модуля и его загрузку
+if lsmod | grep -q "ngfw_arp"; then
+    echo "Module ngfw_arp is loaded. Unload module..."
+    modprobe -r ngfw_arp
+fi
+
+# проверка наличия установленного модуля
+if dkms status | grep -q "ngfw_arp"; then
+    echo "Module ngfw_arp is installed. Remove module..."
+    dkms remove -m ngfw_arp -v 0.1 --all
+fi
+
+# удаление модуля из файла конфигурации
+sed -i '/ngfw_arp/d' /etc/modules-load.d/modules.conf

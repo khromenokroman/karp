@@ -1,0 +1,25 @@
+#! /bin/sh
+
+set -e
+
+# проверка наличия установленного модуля
+if dkms status | grep -q "ngfw_arp"; then
+    echo "Module ngfw_arp installed. Remove module..."
+    dkms remove -m ngfw_arp -v 0.1 --all
+fi
+
+# добавление модуля
+dkms add -m ngfw_arp -v 0.1
+# сборка модуля
+dkms build -m ngfw_arp -v 0.1
+# установка модуля
+dkms install -m ngfw_arp -v 0.1
+
+# проверим есть ли модуль в списке установленных для запуска
+# если есть то удали
+sed -i '/ngfw_arp/d' /etc/modules-load.d/modules.conf
+# добавил модуль в автозагрузку
+echo "ngfw_arp" >> /etc/modules-load.d/modules.conf
+
+# установим модуль в ядро чтобы он сразу был доступен
+modprobe ngfw_arp
